@@ -71,18 +71,20 @@ class LoaderThread(threading.Thread):
     the output stream in an async fashion.
     """
 
+    _spinners = None
+
     def __init__(
         self,
         spinner = "point",
         interval = None,
-        label = "Loading ",
+        template = "Loading {{spinner}}",
         stream = sys.stdout,
         *args, **kwargs
     ):
         threading.Thread.__init__(self, *args, **kwargs)
         self.spinner = spinner
         self.interval = interval
-        self.label = label
+        self.template = template
         self.stream = stream
 
     def run(self):
@@ -97,7 +99,7 @@ class LoaderThread(threading.Thread):
 
         interval = (self.interval or spinner["interval"]) / 1000.0
         frames = spinner["frames"]
-        label = appier.legacy.str(self.label)
+        template = appier.legacy.str(self.template)
 
         index = 0
         is_first = True
@@ -106,7 +108,8 @@ class LoaderThread(threading.Thread):
             value = index % len(frames)
             if is_first: is_first = False
             else: self.stream.write(CLEAR_LINE + "\r")
-            self.stream.write(label + frames[value])
+            label = template.replace("{{spinner}}", frames[value])
+            self.stream.write(label)
             self.stream.flush()
             time.sleep(interval)
             index += 1
@@ -117,18 +120,32 @@ class LoaderThread(threading.Thread):
     def stop(self):
         self.running = False
 
-    def set_label(self, value):
-        self.label = value
+    def set_template(self, value):
+        self.template = value
 
     @classmethod
     def spinners(cls):
-        spinners_path = os.path.join(os.path.dirname(__file__), "res", "spinners.json")
+        # in case the spinners dictionary is already loaded returns
+        # it immediately to the caller method (no reload)
+        if cls._spinners: return cls._spinners
 
+        # builds the path to the JSON based spinners file and the
+        # loads into memory to be used in the decoding
+        spinners_path = os.path.join(
+            os.path.dirname(__file__),
+            "res", "spinners.json"
+        )
         with open(spinners_path, "rb") as file:
-            contents = file.read()
+            data = file.read()
 
-        contents = contents.decode("utf-8")
-        return json.loads(contents)
+        # decodes the binary contents as an UTF-8 unicode string
+        # ands feeds its value into the JSON loader
+        data = data.decode("utf-8")
+        cls._spinners = json.loads(data)
+
+        # returns the now "cached" spinners value to the caller
+        # method (further calls avoid the loading)
+        return cls._spinners
 
 @contextlib.contextmanager
 def ctx_loader(*args, **kwargs):
@@ -140,8 +157,16 @@ def ctx_loader(*args, **kwargs):
         thread.join()
 
 if __name__ == "__main__":
-    spinner = appier.conf("SPINNER", "point")
-    with ctx_loader(spinner = spinner) as loader:
-        time.sleep(10.0)
+    spinners = appier.conf("SPINNERS", None, cast = list)
+    if not spinners:
+        spinners = LoaderThread.spinners()
+        spinners = appier.legacy.keys(spinners)
+        spinners = sorted(spinners)
+    for spinner in spinners:
+        with ctx_loader(
+            spinner = spinner,
+            template = "Spinner '%s' {{spinner}}" % spinner
+        ) as loader:
+            time.sleep(3.0)
 else:
     __path__ = []
