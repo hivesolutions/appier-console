@@ -56,6 +56,11 @@ setuptools.setup(
     package_dir = {
         "" : os.path.normpath("src")
     },
+    package_data = {
+        "appier_console" : [
+            "res/*"
+        ],
+    },
     install_requires = [
         "appier"
     ],
