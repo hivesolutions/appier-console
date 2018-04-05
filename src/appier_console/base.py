@@ -77,7 +77,7 @@ class LoaderThread(threading.Thread):
         self,
         spinner = "point",
         interval = None,
-        template = "Loading {{spinner}}",
+        template = "{{spinner}}",
         stream = sys.stdout,
         *args, **kwargs
     ):
