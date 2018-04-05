@@ -87,6 +87,7 @@ class LoaderThread(threading.Thread):
 
     def run(self):
         threading.Thread.run(self)
+
         cls = self.__class__
 
         self.running = True
@@ -96,6 +97,7 @@ class LoaderThread(threading.Thread):
 
         interval = (self.interval or spinner["interval"]) / 1000.0
         frames = spinner["frames"]
+        label = appier.legacy.str(self.label)
 
         index = 0
         is_first = True
@@ -104,7 +106,7 @@ class LoaderThread(threading.Thread):
             value = index % len(frames)
             if is_first: is_first = False
             else: self.stream.write(CLEAR_LINE + "\r")
-            self.stream.write(self.label + frames[value])
+            self.stream.write(label + frames[value])
             self.stream.flush()
             time.sleep(interval)
             index += 1
