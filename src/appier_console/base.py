@@ -37,8 +37,10 @@ __copyright__ = "Copyright (c) 2008-2018 Hive Solutions Lda."
 __license__ = "Apache License, Version 2.0"
 """ The license for the module """
 
+import os
 import sys
 import time
+import json
 import threading
 import contextlib
 
@@ -69,13 +71,15 @@ class LoaderThread(threading.Thread):
 
     def __init__(
         self,
-        timeout = 0.08,
+        spinner = "point",
+        interval = None,
         label = "Loading ",
         stream = sys.stdout,
         *args, **kwargs
     ):
         threading.Thread.__init__(self, *args, **kwargs)
-        self.timeout = timeout
+        self.spinner = spinner
+        self.interval = interval
         self.label = label
         self.stream = stream
 
@@ -85,7 +89,12 @@ class LoaderThread(threading.Thread):
 
         self.running = True
 
-        frames = cls.FRAMES_5
+        spinners = cls.spinners()
+        spinner = spinners[self.spinner]
+
+        interval = (self.interval or spinner["interval"]) / 1000.0
+        frames = spinner["frames"]
+
         index = 0
         is_first = True
 
@@ -95,7 +104,7 @@ class LoaderThread(threading.Thread):
             else: self.stream.write(CLEAR_LINE + "\r")
             self.stream.write(self.label + frames[value])
             self.stream.flush()
-            time.sleep(self.timeout)
+            time.sleep(interval)
             index += 1
 
         self.stream.write(CLEAR_LINE + "\r")
@@ -109,14 +118,25 @@ class LoaderThread(threading.Thread):
 
     @classmethod
     def spinners(cls):
-        #@todo tneho de carregar o json dos spinners
-        pass
+        spinners_path = os.path.join(os.path.dirname(__file__), "res", "spinners.json")
+
+        with open(spinners_path, "rb") as file:
+            contents = file.read()
+
+        contents = contents.decode("utf-8")
+        return json.loads(contents)
 
 @contextlib.contextmanager
-def ctx_loader(timeout = 0.08, label = "Loading ", stream = sys.stdout):
-    thread = LoaderThread()
+def ctx_loader(*args, **kwargs):
+    thread = LoaderThread(*args, **kwargs)
     thread.start()
     try: yield thread
     finally:
         thread.stop()
         thread.join()
+
+if __name__ == "__main__":
+    with ctx_loader() as loader:
+        time.sleep(10.0)
+else:
+    __path__ = []
