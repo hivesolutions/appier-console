@@ -158,6 +158,7 @@ def ctx_loader(*args, **kwargs):
 
 if __name__ == "__main__":
     spinners = appier.conf("SPINNERS", None, cast = list)
+    timeout = appier.conf("TIMEOUT", 3.0, cast = float)
     if not spinners:
         spinners = LoaderThread.spinners()
         spinners = appier.legacy.keys(spinners)
@@ -167,6 +168,6 @@ if __name__ == "__main__":
             spinner = spinner,
             template = "Spinner '%s' {{spinner}}" % spinner
         ) as loader:
-            time.sleep(3.0)
+            time.sleep(timeout)
 else:
     __path__ = []
