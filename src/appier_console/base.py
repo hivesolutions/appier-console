@@ -63,7 +63,27 @@ COLOR_BROWN = "\033[0;33m"
 COLOR_YELLOW = "\033[1;33m"
 COLOR_GRAY = "\033[0;30m"
 COLOR_LIGHT_GRAY = "\033[0;37m"
+
 CLEAR_LINE = "\033[K"
+
+COLORS = dict(
+    white = COLOR_WHITE,
+    black = COLOR_BLACK,
+    blue = COLOR_BLUE,
+    light_blue = COLOR_LIGHT_BLUE,
+    green = COLOR_GREEN,
+    light_green = COLOR_LIGHT_GREEN,
+    cyan = COLOR_CYAN,
+    light_cyan = COLOR_LIGHT_CYAN,
+    red = COLOR_RED,
+    light_red = COLOR_LIGHT_RED,
+    purple = COLOR_PURPLE,
+    light_purple = COLOR_LIGHT_PURPLE,
+    brown = COLOR_BROWN,
+    yellow = COLOR_YELLOW,
+    gray = COLOR_GRAY,
+    light_gray = COLOR_LIGHT_GRAY
+)
 
 class LoaderThread(threading.Thread):
     """
@@ -77,6 +97,7 @@ class LoaderThread(threading.Thread):
         self,
         spinner = "point",
         interval = None,
+        color = None,
         template = "{{spinner}}",
         stream = sys.stdout,
         *args, **kwargs
@@ -84,6 +105,7 @@ class LoaderThread(threading.Thread):
         threading.Thread.__init__(self, *args, **kwargs)
         self.spinner = spinner
         self.interval = interval
+        self.color = color
         self.template = template
         self.stream = stream
 
@@ -91,6 +113,8 @@ class LoaderThread(threading.Thread):
         threading.Thread.run(self)
 
         cls = self.__class__
+
+        color = COLORS.get(self.color, self.color)
 
         self.running = True
 
@@ -108,7 +132,9 @@ class LoaderThread(threading.Thread):
             value = index % len(frames)
             if is_first: is_first = False
             else: self.stream.write(CLEAR_LINE + "\r")
-            label = template.replace("{{spinner}}", frames[value])
+            replacer = frames[value]
+            if color: replacer = color + replacer + COLOR_RESET
+            label = template.replace("{{spinner}}", replacer)
             self.stream.write(label)
             self.stream.flush()
             time.sleep(interval)
@@ -182,6 +208,7 @@ def is_color():
 if __name__ == "__main__":
     spinners = appier.conf("SPINNERS", None, cast = list)
     timeout = appier.conf("TIMEOUT", 3.0, cast = float)
+    color = appier.conf("COLOR", "cyan")
     if not spinners:
         spinners = LoaderThread.spinners()
         spinners = appier.legacy.keys(spinners)
@@ -189,6 +216,7 @@ if __name__ == "__main__":
     for spinner in spinners:
         with ctx_loader(
             spinner = spinner,
+            color = color,
             template = "Spinner '%s' {{spinner}}" % spinner
         ) as loader:
             time.sleep(timeout)
