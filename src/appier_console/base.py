@@ -44,6 +44,8 @@ import json
 import threading
 import contextlib
 
+import appier
+
 COLOR_RESET = "\033[0m"
 COLOR_WHITE = "\033[1;37m"
 COLOR_BLACK = "\033[0;30m"
@@ -136,7 +138,8 @@ def ctx_loader(*args, **kwargs):
         thread.join()
 
 if __name__ == "__main__":
-    with ctx_loader() as loader:
+    spinner = appier.conf("SPINNER", "point")
+    with ctx_loader(spinner = spinner) as loader:
         time.sleep(10.0)
 else:
     __path__ = []
