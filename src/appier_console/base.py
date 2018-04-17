@@ -212,9 +212,11 @@ class LoaderThread(threading.Thread):
             self._condition.wait(interval)
             self._condition.release()
 
+        # verifies if the current context should end with a new line
+        # or if instead the same line is going to be re-used and write
+        # the appropriate string sequence to the output stream
         if self.end_newline: self.stream.write("\n")
         else: self.stream.write(CLEAR_LINE + "\r")
-
         self.stream.flush()
 
     def stop(self):
@@ -236,7 +238,9 @@ class LoaderThread(threading.Thread):
 
     @property
     def has_spinner(self):
-        return self.is_tty
+        if not self.is_tty: return False
+        if os.name in ("nt",) and not appier.legacy.PYTHON_3: return False
+        return True
 
     @property
     def is_tty(self):
