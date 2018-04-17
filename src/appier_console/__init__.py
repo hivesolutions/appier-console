@@ -35,7 +35,9 @@ __license__ = "Apache License, Version 2.0"
 """ The license for the module """
 
 from . import base
+from . import http
 from . import util
 
 from .base import LoaderThread, ctx_loader
+from .http import http_callbacks
 from .util import is_tty, is_color

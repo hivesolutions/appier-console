@@ -92,6 +92,9 @@ class LoaderThread(threading.Thread):
     """
 
     _spinners = None
+    """ The underlying spinners map that will probably be
+    loaded from a secondary structure (eg: JSON file) to be
+    used as the metadata source of information """
 
     def __init__(
         self,
