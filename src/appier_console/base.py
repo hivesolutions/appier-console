@@ -219,7 +219,7 @@ class LoaderThread(threading.Thread):
         # verifies if the current context should end with a new line
         # or if instead the same line is going to be re-used and write
         # the appropriate string sequence to the output stream
-        if self.end_newline: self.stream.write("\n")
+        if self.end_newline: self.stream.write("\n" if self.is_tty else "")
         else: self.stream.write(CLEAR_LINE + "\r")
         self.stream.flush()
 
