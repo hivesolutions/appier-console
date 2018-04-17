@@ -36,4 +36,3 @@ deploy:
   on:
     tags: true
     python: "2.7"
- 
