@@ -176,6 +176,9 @@ class LoaderThread(threading.Thread):
             index = int((current - initial) / interval_s)
             value = index % len(frames)
 
+            # determines if this is the first print operation or not
+            # and taking that into account sets the proper beginning of
+            # line (BOL) and end of line (EOL) characters
             if is_first:
                 is_first = False
                 bol, eol = ("", "")
