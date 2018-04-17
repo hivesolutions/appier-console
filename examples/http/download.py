@@ -44,6 +44,7 @@ import appier
 import appier_console
 
 BIG_BUCK_URL = "http://download.blender.org/peach/bigbuckbunny_movies/big_buck_bunny_1080p_h264.mov"
+BIG_BUCK_NAME = "big_buck_bunny_1080p_h264.mov"
 
 url = sys.argv[1] if len(sys.argv) > 1 else BIG_BUCK_URL
 name = os.path.basename(appier.legacy.urlparse(url).path)
@@ -58,10 +59,11 @@ def copy(input, name, buffer_size = 16384):
     finally:
         output.close()
 
-with appier_console.ctx_http_callbacks("big_buck_bunny_1080p_h264.mov") as callbacks:
+with appier_console.ctx_http_callbacks(BIG_BUCK_NAME) as callbacks:
     contents, _response = appier.get(
         url,
         handle = True,
+        silent = True,
         redirect = True,
         retry = 0,
         use_file = True,

@@ -55,10 +55,11 @@ in an text based download """
 def ctx_http_callbacks(
     name,
     console_threshold = CONSOLE_THRESHOLD,
-    text_threshold = TEXT_THRESHOLD
+    text_threshold = TEXT_THRESHOLD,
+    end_newline = True
 ):
 
-    with base.ctx_loader() as loader:
+    with base.ctx_loader(end_newline = end_newline) as loader:
 
         status = dict(
             length = -1,
@@ -70,10 +71,10 @@ def ctx_http_callbacks(
         )
 
         def callback_init(connection):
-            loader.set_template("[%s] Establishing connection " % name)
+            loader.set_template("{{spinner}} [%s] Establishing connection " % name)
 
         def callback_open(connection):
-            loader.set_template("[%s] Connection established " % name)
+            loader.set_template("{{spinner}} [%s] Connection established " % name)
 
         def callback_headers(headers):
             _length = headers.get("content-length", None)

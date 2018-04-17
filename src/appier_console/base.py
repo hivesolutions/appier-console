@@ -103,6 +103,7 @@ class LoaderThread(threading.Thread):
         color = None,
         template = "{{spinner}}",
         stream = sys.stdout,
+        end_newline = False,
         *args, **kwargs
     ):
         threading.Thread.__init__(self, *args, **kwargs)
@@ -111,6 +112,7 @@ class LoaderThread(threading.Thread):
         self.color = color
         self.template = template
         self.stream = stream
+        self.end_newline = end_newline
 
     def run(self):
         threading.Thread.run(self)
@@ -130,20 +132,34 @@ class LoaderThread(threading.Thread):
         index = 0
         is_first = True
 
-        while self.running:
+        while True:
             value = index % len(frames)
             if is_first: is_first = False
             else: self.stream.write(CLEAR_LINE + "\r")
             replacer = frames[value]
             if color: replacer = color + replacer + COLOR_RESET
+
             template = appier.legacy.str(self.template)
             label = template.replace("{{spinner}}", replacer)
+
+            # writes the current label (text) to the output stream
+            # and runs the flush operation (required to ensure that
+            # the data contents are properly set in the stream)
             self.stream.write(label)
             self.stream.flush()
+
+            # in case the running flag is not longer set breaks
+            # the current loop (nothing remaining to be done)
+            if not self.running: break
+
+            # sleeps for the amount of time in the interval and
+            # then increments the current loop cycle index
             time.sleep(interval)
             index += 1
 
-        self.stream.write(CLEAR_LINE + "\r")
+        if self.end_newline: self.stream.write("\n")
+        else: self.stream.write(CLEAR_LINE + "\r")
+
         self.stream.flush()
 
     def stop(self):
