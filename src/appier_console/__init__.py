@@ -41,6 +41,6 @@ from . import util
 from .base import COLOR_RESET, COLOR_WHITE, COLOR_BLACK, COLOR_BLUE, COLOR_LIGHT_BLUE, COLOR_GREEN,\
     COLOR_LIGHT_GREEN, COLOR_CYAN, COLOR_LIGHT_CYAN, COLOR_RED, COLOR_LIGHT_RED, COLOR_PURPLE,\
     COLOR_LIGHT_PURPLE, COLOR_BROWN, COLOR_YELLOW, COLOR_GRAY, COLOR_LIGHT_GRAY, CLEAR_LINE, COLORS,\
-    LoaderThread, ctx_loader
+    LoaderThread, ctx_loader, colored
 from .http import ctx_http_callbacks
 from .util import is_tty, is_color

@@ -154,7 +154,8 @@ class LoaderThread(threading.Thread):
 
         # tries to retrieve the color escape sequence from the value
         # of the provided color (provides easy to use interface)
-        color = COLORS.get(self.color, self.color)
+        if util.is_color(): color = COLORS.get(self.color, self.color)
+        else: color = None
 
         # retrieves the current spinner map and then uses it to
         # calculate the interval (in seconds) for the spinner sequence
@@ -257,6 +258,9 @@ def ctx_loader(*args, **kwargs):
     finally:
         thread.stop()
         thread.join()
+
+def colored(value, color = COLOR_RED):
+    return color + value + COLOR_RESET
 
 if __name__ == "__main__":
     spinners = appier.conf("SPINNERS", None, cast = list)
