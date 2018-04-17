@@ -17,13 +17,9 @@ python:
   - "pypy3-2.4.0"
   - "pypy2.7-5.8.0"
   - "pypy3.5-5.8.0"
-services:
-  - mongodb
-  - redis-server
 before_install:
   - if [[ $TRAVIS_PYTHON_VERSION != "3.2" ]] && [[ $TRAVIS_PYTHON_VERSION != "pypy3-2.4.0" ]]; then pip install --upgrade pip setuptools; fi
 install:
-  - if [[ $TRAVIS_PYTHON_VERSION == "3.2" ]]; then pip install "pymongo<3.3"; fi
   - pip install "pkginfo<1.3"
   - pip install -r requirements.txt
   - pip install -r extra.txt
@@ -35,7 +31,7 @@ deploy:
   provider: pypi
   user: joamag
   password:
-    secure: IKGSjx+IGgz5d+kbQrhkbATORlfmxU4WMj2KQsuIQuQS1cO6I2r/8q6GhgXoy93Q+FwjZ4JpAeSidVYHNV+GpN2PIDw+bra5BZQvEupUq35j2tahHPhn3dn2D1HxX8Y/C+UnQX/PRJjXSEyKdTeCR+cRUILUQwrH8ngpXJBlsiI=
+    secure: a2jO7JHushqFovMobIg5ND+CyPfpH9D5BGQyElfdUXHEpE1+ZDa6hzJxZGCdhbuP5hCv1lK1tO95dXMrvtEuQBTTIXj6+sscQ1Tfcok4c2PUt+yd8hM1Na7Ei2HWwcWMxyh8sUUn4TkOVSct78LCA/DGelwJxo1pZyN6bdtQgm7deyrocQUiYjzxSZ69GrUf8hQYosLrlwb8D2uPV9niRKkXj0xCTKzFcThTDb0Xve5CWY+DFx5rcQdCvkAHTeeMC72YdR/3SGZCKGmn51fifX+p2XAKPxrpHEANKt6U06BkZyocZmoUwSuvEz1+yeb8lSGQgwa/u8FjsE1I7I5WChNGHWF0hvdnEW6MT/L+doELbBD0yqKxFwfWsei4Yg4FZzsNEfsPv+/ybSlUO0NhlEqqeKl8e0lsKkcnyMDby/++92YoNkQUVsxP+Eq7rvr7/nXfUBrcyPcKrYru9uQ+iuTblhkMylG6R+l/j8veVeEQLKsDxSetFhKnaPj5oIdHDZJHVAYIBVzL0Be24mSgyHNfYqPirCHwBBODfRCviC1UmKgRUxwXxpHXpQG04o17ydkPPEbK09r//tmVV0C8vG7mgHPtsbfBu91zUBuqvP9T0y5k1lIAyu6F/d+McyTBr4aMV0CkKTtk+fsd/2se8mgAWi3PKyFJMnjpC1Q/KgY=
   distributions: sdist bdist_wheel
   on:
     tags: true
