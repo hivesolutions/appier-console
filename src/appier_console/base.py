@@ -113,6 +113,7 @@ class LoaderThread(threading.Thread):
         self.template = template
         self.stream = stream
         self.end_newline = end_newline
+        self._condition = threading.Condition()
 
     def run(self):
         threading.Thread.run(self)
@@ -152,9 +153,15 @@ class LoaderThread(threading.Thread):
             # the current loop (nothing remaining to be done)
             if not self.running: break
 
-            # sleeps for the amount of time in the interval and
-            # then increments the current loop cycle index
-            time.sleep(interval)
+            # waits for the condition for the associated amount of
+            # time and then releases the condition, this will effectively
+            # allow external threads to awake this one
+            self._condition.acquire()
+            self._condition.wait(interval)
+            self._condition.release()
+
+            # increments the current loop cycle identifier, to be
+            # used in the calculus of the animation modulus
             index += 1
 
         if self.end_newline: self.stream.write("\n")
@@ -167,6 +174,11 @@ class LoaderThread(threading.Thread):
 
     def set_template(self, value):
         self.template = value
+
+    def flush(self):
+        self._condition.acquire()
+        self._condition.notify()
+        self._condition.release()
 
     @classmethod
     def spinners(cls):

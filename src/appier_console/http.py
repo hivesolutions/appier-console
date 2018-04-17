@@ -72,9 +72,11 @@ def ctx_http_callbacks(
 
         def callback_init(connection):
             loader.set_template("{{spinner}} [%s] Establishing connection " % name)
+            loader.flush()
 
         def callback_open(connection):
             loader.set_template("{{spinner}} [%s] Connection established " % name)
+            loader.flush()
 
         def callback_headers(headers):
             _length = headers.get("content-length", None)
@@ -90,7 +92,7 @@ def ctx_http_callbacks(
             status["received"] += len(data)
             if not status["length"] == -1:
                 status["percent"] = float(status["received"]) / float(status["length"]) * 100.0
-          #  if status["received"] - status["flushed"] < status["threshold"]: return
+            if status["received"] - status["flushed"] < status["threshold"]: return
             status["flushed"] = status["received"]
             output()
 
@@ -103,6 +105,7 @@ def ctx_http_callbacks(
             if delta == 0.0: delta = 1.0
             speed = float(status["received"]) / float(delta) / (1024 * 1024)
             loader.set_template("{{spinner}} [%s] %.02f%% %.02fMB/s" % (name, status["percent"], speed))
+            loader.flush()
 
         yield dict(
             callback_init = callback_init,
