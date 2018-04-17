@@ -46,6 +46,8 @@ import contextlib
 
 import appier
 
+from . import util
+
 COLOR_RESET = "\033[0m"
 COLOR_WHITE = "\033[1;37m"
 COLOR_BLACK = "\033[0;30m"
@@ -115,71 +117,6 @@ class LoaderThread(threading.Thread):
         self.end_newline = end_newline
         self._condition = threading.Condition()
 
-    def run(self):
-        threading.Thread.run(self)
-
-        cls = self.__class__
-
-        color = COLORS.get(self.color, self.color)
-
-        self.running = True
-
-        spinners = cls.spinners()
-        spinner = spinners[self.spinner]
-
-        interval = (self.interval or spinner["interval"]) / 1000.0
-        frames = spinner["frames"]
-
-        index = 0
-        is_first = True
-
-        while True:
-            value = index % len(frames)
-            if is_first: is_first = False
-            else: self.stream.write(CLEAR_LINE + "\r")
-            replacer = frames[value]
-            if color: replacer = color + replacer + COLOR_RESET
-
-            template = appier.legacy.str(self.template)
-            label = template.replace("{{spinner}}", replacer)
-
-            # writes the current label (text) to the output stream
-            # and runs the flush operation (required to ensure that
-            # the data contents are properly set in the stream)
-            self.stream.write(label)
-            self.stream.flush()
-
-            # in case the running flag is not longer set breaks
-            # the current loop (nothing remaining to be done)
-            if not self.running: break
-
-            # waits for the condition for the associated amount of
-            # time and then releases the condition, this will effectively
-            # allow external threads to awake this one
-            self._condition.acquire()
-            self._condition.wait(interval)
-            self._condition.release()
-
-            # increments the current loop cycle identifier, to be
-            # used in the calculus of the animation modulus
-            index += 1
-
-        if self.end_newline: self.stream.write("\n")
-        else: self.stream.write(CLEAR_LINE + "\r")
-
-        self.stream.flush()
-
-    def stop(self):
-        self.running = False
-
-    def set_template(self, value):
-        self.template = value
-
-    def flush(self):
-        self._condition.acquire()
-        self._condition.notify()
-        self._condition.release()
-
     @classmethod
     def spinners(cls):
         # in case the spinners dictionary is already loaded returns
@@ -203,6 +140,107 @@ class LoaderThread(threading.Thread):
         # returns the now "cached" spinners value to the caller
         # method (further calls avoid the loading)
         return cls._spinners
+
+    def run(self):
+        threading.Thread.run(self)
+
+        # retrieves the reference to the class associated with
+        # the current instance to be used at the class level
+        cls = self.__class__
+
+        # sets the running flag for the current instance meaning
+        # that the current thread is running
+        self.running = True
+
+        # tries to retrieve the color escape sequence from the value
+        # of the provided color (provides easy to use interface)
+        color = COLORS.get(self.color, self.color)
+
+        # retrieves the current spinner map and then uses it to
+        # calculate the interval (in seconds) for the spinner sequence
+        # and retrieves the list of frame characters for the spinner
+        spinner = cls.spinners()[self.spinner]
+        interval_s = (spinner["interval"]) / 1000.0
+        frames = spinner["frames"]
+
+        if self.has_spinner: interval = min(self.interval_g, interval_s)
+        else: interval = self.interval_g
+
+        initial = time.time()
+        is_first = True
+
+        while True:
+            # retrieves the current time and uses it to calculate
+            # the current frame index of the spinner
+            current = time.time()
+            index = int((current - initial) / interval_s)
+            value = index % len(frames)
+
+            if is_first:
+                is_first = False
+                bol, eol = ("", "")
+            else:
+                bol, eol = (CLEAR_LINE + "\r", "") if self.is_tty else ("", "\n")
+
+            # retrieves the value of the current frame of the spinner
+            # and in case there's a color selected updates such replacer
+            # embedding it into a proper color mask
+            replacer = frames[value]
+            if color: replacer = color + replacer + COLOR_RESET
+
+            if not self.has_spinner: replacer = ""
+
+            template = appier.legacy.str(self.template)
+            label = template.replace("{{spinner}}", replacer)
+            label = label.strip()
+
+            # writes the current label (text) to the output stream
+            # and runs the flush operation (required to ensure that
+            # the data contents are properly set in the stream)
+            if label:
+                self.stream.write(bol + label + eol)
+                self.stream.flush()
+
+            # in case the running flag is not longer set breaks
+            # the current loop (nothing remaining to be done)
+            if not self.running: break
+
+            # waits for the condition for the associated amount of
+            # time and then releases the condition, this will effectively
+            # allow external threads to awake this one
+            self._condition.acquire()
+            self._condition.wait(interval)
+            self._condition.release()
+
+        if self.end_newline: self.stream.write("\n")
+        else: self.stream.write(CLEAR_LINE + "\r")
+
+        self.stream.flush()
+
+    def stop(self):
+        self.running = False
+
+    def set_template(self, value):
+        self.template = value
+
+    def flush(self):
+        self._condition.acquire()
+        self._condition.notify()
+        self._condition.release()
+
+    @property
+    def interval_g(self):
+        if self.interval: return self.interval
+        if self.is_tty: return 0.1
+        return 0.25
+
+    @property
+    def has_spinner(self):
+        return self.is_tty
+
+    @property
+    def is_tty(self):
+        return util.is_tty(self.stream)
 
 @contextlib.contextmanager
 def ctx_loader(*args, **kwargs):

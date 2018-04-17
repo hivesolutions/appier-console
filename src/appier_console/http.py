@@ -41,31 +41,23 @@ import time
 import contextlib
 
 from . import base
-from . import util
-
-CONSOLE_THRESHOLD = 1024 * 1024
-""" The threshold in bytes to be used to print content
-in an interactive/console based download """
-
-TEXT_THRESHOLD = 10 * 1024 * 1024
-""" The threshold in bytes to be used to print content
-in an text based download """
 
 @contextlib.contextmanager
 def ctx_http_callbacks(
     name,
-    console_threshold = CONSOLE_THRESHOLD,
-    text_threshold = TEXT_THRESHOLD,
+    color = "cyan",
     end_newline = True
 ):
 
-    with base.ctx_loader(end_newline = end_newline) as loader:
+    with base.ctx_loader(
+        color = color,
+        end_newline = end_newline
+    ) as loader:
 
         status = dict(
             length = -1,
             received = 0,
             flushed = 0,
-            threshold = 0,
             percent = 0.0,
             start = None
         )
@@ -85,14 +77,12 @@ def ctx_http_callbacks(
             status["received"] = 0
             status["flushed"] = 0
             status["percent"] = 0.0
-            status["threshold"] = console_threshold if util.is_tty() else text_threshold
             status["start"] = time.time()
 
         def callback_data(data):
             status["received"] += len(data)
             if not status["length"] == -1:
                 status["percent"] = float(status["received"]) / float(status["length"]) * 100.0
-            if status["received"] - status["flushed"] < status["threshold"]: return
             status["flushed"] = status["received"]
             output()
 
@@ -105,7 +95,7 @@ def ctx_http_callbacks(
             if delta == 0.0: delta = 1.0
             speed = float(status["received"]) / float(delta) / (1024 * 1024)
             loader.set_template("{{spinner}} [%s] %.02f%% %.02fMB/s" % (name, status["percent"], speed))
-            loader.flush()
+            if loader.is_tty: loader.flush()
 
         yield dict(
             callback_init = callback_init,
