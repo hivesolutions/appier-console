@@ -38,3 +38,4 @@ from . import base
 from . import util
 
 from .base import LoaderThread, ctx_loader
+from .util import is_tty, is_color

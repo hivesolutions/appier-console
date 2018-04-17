@@ -182,29 +182,6 @@ def ctx_loader(*args, **kwargs):
         thread.stop()
         thread.join()
 
-def is_tty(stream = sys.stdout):
-    """
-    Verifies if the provided stream is capable of a TTY like
-    interaction (input and output).
-
-    Otherwise its considered to be an output only stream.
-
-    :type stream: Stream
-    :param stream: The stream to be tested for TTY like capabilities.
-    :rtype: bool
-    :return: If the provided stream is TTY capable.
-    :see: https://en.wikipedia.org/wiki/Teleprinter
-    """
-
-    return hasattr(stream, "isatty") and stream.isatty()
-
-def is_color():
-    plat = sys.platform
-    supported_platform = not plat == "Pocket PC" and\
-        (not plat == "win32" or "ANSICON" in os.environ)
-    if not supported_platform or not is_tty(): return False
-    return True
-
 if __name__ == "__main__":
     spinners = appier.conf("SPINNERS", None, cast = list)
     timeout = appier.conf("TIMEOUT", 3.0, cast = float)
