@@ -114,7 +114,7 @@ class LoaderThread(threading.Thread):
         self.color = color
         self.template = template
         self.stream = stream
-        self.end_newline = end_newline
+        self.end_newline = end_newline or not self.is_tty
         self._condition = threading.Condition()
 
     @classmethod
@@ -182,7 +182,7 @@ class LoaderThread(threading.Thread):
             # line (BOL) and end of line (EOL) characters
             if is_first:
                 is_first = False
-                bol, eol = ("", "")
+                bol, eol = ("", "") if self.is_tty else ("", "\n")
             else:
                 bol, eol = (CLEAR_LINE + "\r", "") if self.is_tty else ("", "\n")
 
