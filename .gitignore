@@ -1,0 +1,7 @@
+*.pyc
+
+.DS_Store
+
+/dist
+/build
+/src/appier_console.egg-info
