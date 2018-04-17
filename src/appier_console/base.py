@@ -126,7 +126,6 @@ class LoaderThread(threading.Thread):
 
         interval = (self.interval or spinner["interval"]) / 1000.0
         frames = spinner["frames"]
-        template = appier.legacy.str(self.template)
 
         index = 0
         is_first = True
@@ -137,6 +136,7 @@ class LoaderThread(threading.Thread):
             else: self.stream.write(CLEAR_LINE + "\r")
             replacer = frames[value]
             if color: replacer = color + replacer + COLOR_RESET
+            template = appier.legacy.str(self.template)
             label = template.replace("{{spinner}}", replacer)
             self.stream.write(label)
             self.stream.flush()

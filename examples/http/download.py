@@ -58,19 +58,19 @@ def copy(input, name, buffer_size = 16384):
     finally:
         output.close()
 
-callbacks = appier_console.http_callbacks("big_buck_bunny_1080p_h264.mov")
-contents, _response = appier.get(
-    url,
-    handle = True,
-    redirect = True,
-    retry = 0,
-    use_file = True,
-    callback_init = callbacks["callback_init"],
-    callback_open = callbacks["callback_open"],
-    callback_headers = callbacks["callback_headers"],
-    callback_data = callbacks["callback_data"],
-    callback_result = callbacks["callback_result"]
-)
+with appier_console.ctx_http_callbacks("big_buck_bunny_1080p_h264.mov") as callbacks:
+    contents, _response = appier.get(
+        url,
+        handle = True,
+        redirect = True,
+        retry = 0,
+        use_file = True,
+        callback_init = callbacks["callback_init"],
+        callback_open = callbacks["callback_open"],
+        callback_headers = callbacks["callback_headers"],
+        callback_data = callbacks["callback_data"],
+        callback_result = callbacks["callback_result"]
+    )
 
 try: copy(contents, name)
 finally: contents.close()

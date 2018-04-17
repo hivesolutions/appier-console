@@ -38,6 +38,7 @@ __license__ = "Apache License, Version 2.0"
 """ The license for the module """
 
 import time
+import contextlib
 
 from . import base
 from . import util
@@ -50,7 +51,8 @@ TEXT_THRESHOLD = 10 * 1024 * 1024
 """ The threshold in bytes to be used to print content
 in an text based download """
 
-def http_callbacks(
+@contextlib.contextmanager
+def ctx_http_callbacks(
     name,
     console_threshold = CONSOLE_THRESHOLD,
     text_threshold = TEXT_THRESHOLD
@@ -94,23 +96,17 @@ def http_callbacks(
         def callback_result(result):
             status["percent"] = 100.0
             output()
-            #try:
-            #    sys.stdout.write("\n" if is_tty() else "")
-            #    sys.stdout.flush()
-            #except: pass
 
         def output():
             delta = time.time() - status["start"]
             if delta == 0.0: delta = 1.0
             speed = float(status["received"]) / float(delta) / (1024 * 1024)
-            prefix = "\r" if util.is_tty() else ""
-            suffix = "" if util.is_tty() else "\n"
-            loader.set_template(prefix + "[%s] %.02f%% %.02fMB/s " % (name, status["percent"], speed) + suffix)
+            loader.set_template("{{spinner}} [%s] %.02f%% %.02fMB/s" % (name, status["percent"], speed))
 
-    return dict(
-        callback_init = callback_init,
-        callback_open = callback_open,
-        callback_headers = callback_headers,
-        callback_data = callback_data,
-        callback_result = callback_result
-    )
+        yield dict(
+            callback_init = callback_init,
+            callback_open = callback_open,
+            callback_headers = callback_headers,
+            callback_data = callback_data,
+            callback_result = callback_result
+        )

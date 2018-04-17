@@ -39,5 +39,5 @@ from . import http
 from . import util
 
 from .base import LoaderThread, ctx_loader
-from .http import http_callbacks
+from .http import ctx_http_callbacks
 from .util import is_tty, is_color
