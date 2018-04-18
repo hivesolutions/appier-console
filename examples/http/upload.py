@@ -37,7 +37,6 @@ __copyright__ = "Copyright (c) 2008-2018 Hive Solutions Lda."
 __license__ = "Apache License, Version 2.0"
 """ The license for the module """
 
-import os
 import sys
 
 import appier
@@ -47,20 +46,9 @@ UPLOAD_URL = "https://httpbin.org/post"
 path = sys.argv[1]
 url = sys.argv[2] if len(sys.argv) > 2 else UPLOAD_URL
 
-def uploader(path, size = 40960):
-    yield os.path.getsize(path)
-    file = open(path, "rb")
-    try:
-        while True:
-            data = file.read(size)
-            if not data: break
-            yield data
-    finally:
-        file.close()
-
 contents, _response = appier.post(
     url,
-    data = uploader(path),
+    data = appier.file_g(path),
     handle = True,
     silent = True,
     redirect = True,
