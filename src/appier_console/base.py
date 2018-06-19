@@ -157,10 +157,6 @@ class LoaderThread(threading.Thread):
         if self.is_color: color = COLORS.get(self.color, self.color)
         else: color = None
 
-        # determines the proper character that is going to be used as
-        # a prefix for a proper line clearing operation
-        clear_line = CLEAR_LINE if self.is_color else ""
-
         # retrieves the current spinner map and then uses it to
         # calculate the interval (in seconds) for the spinner sequence
         # and retrieves the list of frame characters for the spinner
@@ -173,8 +169,15 @@ class LoaderThread(threading.Thread):
 
         initial = time.time()
         is_first = True
+        previous_size = 0
 
         while True:
+            # determines the proper character that is going to be used as
+            # a prefix for a proper line clearing operation, notice that
+            # in case no color support exists the current line is populated
+            # with space characters (considered neutral)
+            clear_line = CLEAR_LINE if self.is_color else "\r" + " " * previous_size
+
             # retrieves the current time and uses it to calculate
             # the current frame index of the spinner
             current = time.time()
@@ -202,6 +205,8 @@ class LoaderThread(threading.Thread):
             label = template.replace("{{spinner}}", replacer)
             label = label.strip()
 
+            previous_size = len(label)
+
             # writes the current label (text) to the output stream
             # and runs the flush operation (required to ensure that
             # the data contents are properly set in the stream)
@@ -219,6 +224,12 @@ class LoaderThread(threading.Thread):
             self._condition.acquire()
             self._condition.wait(interval)
             self._condition.release()
+
+        # determines the proper character that is going to be used as
+        # a prefix for a proper line clearing operation, notice that
+        # in case no color support exists the current line is populated
+        # with space characters (considered neutral)
+        clear_line = CLEAR_LINE if self.is_color else "\r" + " " * previous_size
 
         # verifies if the current context should end with a new line
         # or if instead the same line is going to be re-used and write

@@ -43,3 +43,5 @@ import appier_console
 
 with appier_console.ctx_loader(template = "{{spinner}} Processing 3 seconds"):
     time.sleep(3)
+
+print("Processing completed")
