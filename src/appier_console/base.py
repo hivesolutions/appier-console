@@ -205,6 +205,9 @@ class LoaderThread(threading.Thread):
             label = template.replace("{{spinner}}", replacer)
             label = label.strip()
 
+            # saves the size of the current label (output text) so that
+            # it can be used to calculate the size of the spaces string
+            # that would clear its line contents (if required)
             previous_size = len(label)
 
             # writes the current label (text) to the output stream
