@@ -45,7 +45,7 @@ from . import base
 @contextlib.contextmanager
 def ctx_http_callbacks(
     name,
-    color = "cyan",
+    color = None,
     end_newline = True
 ):
 
