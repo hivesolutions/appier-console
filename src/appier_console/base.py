@@ -154,8 +154,12 @@ class LoaderThread(threading.Thread):
 
         # tries to retrieve the color escape sequence from the value
         # of the provided color (provides easy to use interface)
-        if util.is_color(): color = COLORS.get(self.color, self.color)
+        if self.is_color: color = COLORS.get(self.color, self.color)
         else: color = None
+
+        # determines the proper character that is going to be used as
+        # a prefix for a proper line clearing operation
+        clear_line = CLEAR_LINE if self.is_color else ""
 
         # retrieves the current spinner map and then uses it to
         # calculate the interval (in seconds) for the spinner sequence
@@ -184,7 +188,7 @@ class LoaderThread(threading.Thread):
                 is_first = False
                 bol, eol = ("", "") if self.is_tty else ("", "\n")
             else:
-                bol, eol = (CLEAR_LINE + "\r", "") if self.is_tty else ("", "\n")
+                bol, eol = (clear_line + "\r", "") if self.is_tty else ("", "\n")
 
             # retrieves the value of the current frame of the spinner
             # and in case there's a color selected updates such replacer
@@ -220,7 +224,7 @@ class LoaderThread(threading.Thread):
         # or if instead the same line is going to be re-used and write
         # the appropriate string sequence to the output stream
         if self.end_newline: self.stream.write("\n" if self.is_tty else "")
-        else: self.stream.write(CLEAR_LINE + "\r")
+        else: self.stream.write(clear_line + "\r")
         self.stream.flush()
 
     def stop(self):
@@ -249,6 +253,10 @@ class LoaderThread(threading.Thread):
     @property
     def is_tty(self):
         return util.is_tty(self.stream)
+
+    @property
+    def is_color(self):
+        return util.is_color()
 
 @contextlib.contextmanager
 def ctx_loader(*args, **kwargs):
