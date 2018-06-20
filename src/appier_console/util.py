@@ -66,6 +66,7 @@ def is_ansi():
 
     :rtype: bool
     :return: If the current output console is ANSI capable.
+    :see: https://en.wikipedia.org/wiki/ANSI_escape_code
     """
 
     ansi_platform = not sys.platform == "Pocket PC" and\
