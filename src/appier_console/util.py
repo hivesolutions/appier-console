@@ -56,9 +56,22 @@ def is_tty(stream = sys.stdout):
 
     return hasattr(stream, "isatty") and stream.isatty()
 
-def is_color():
-    plat = sys.platform
-    supported_platform = not plat == "Pocket PC" and\
-        (not plat == "win32" or "ANSICON" in os.environ)
-    if not supported_platform or not is_tty(): return False
+def is_ansi():
+    """
+    Determines if the current output console is ANSI escape
+    sequences compatible.
+
+    These escape sequences are important to be able to perform
+    complex (non linear) operation on the terminal
+
+    :rtype: bool
+    :return: If the current output console is ANSI capable.
+    """
+
+    ansi_platform = not sys.platform == "Pocket PC" and\
+        (not sys.platform == "win32" or "ANSICON" in os.environ)
+    if not ansi_platform or not is_tty(): return False
     return True
+
+def is_color():
+    return is_ansi()

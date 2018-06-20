@@ -176,7 +176,7 @@ class LoaderThread(threading.Thread):
             # a prefix for a proper line clearing operation, notice that
             # in case no color support exists the current line is populated
             # with space characters (considered neutral)
-            clear_line = CLEAR_LINE if self.is_color else "\r" + " " * previous_size
+            clear_line = CLEAR_LINE if self.is_ansi else "\r" + " " * previous_size
 
             # retrieves the current time and uses it to calculate
             # the current frame index of the spinner
@@ -232,7 +232,7 @@ class LoaderThread(threading.Thread):
         # a prefix for a proper line clearing operation, notice that
         # in case no color support exists the current line is populated
         # with space characters (considered neutral)
-        clear_line = CLEAR_LINE if self.is_color else "\r" + " " * previous_size
+        clear_line = CLEAR_LINE if self.is_ansi else "\r" + " " * previous_size
 
         # verifies if the current context should end with a new line
         # or if instead the same line is going to be re-used and write
@@ -267,6 +267,10 @@ class LoaderThread(threading.Thread):
     @property
     def is_tty(self):
         return util.is_tty(self.stream)
+
+    @property
+    def is_ansi(self):
+        return util.is_ansi()
 
     @property
     def is_color(self):
