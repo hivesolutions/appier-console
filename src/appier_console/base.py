@@ -148,6 +148,11 @@ class LoaderThread(threading.Thread):
         # the current instance to be used at the class level
         cls = self.__class__
 
+        # verifies a series of pre-conditions that must be met for
+        # the context execution to work properly, if any of them is
+        # not met the control flow is returned immediately
+        if not self.stream: return
+
         # sets the running flag for the current instance meaning
         # that the current thread is running
         self.running = True
