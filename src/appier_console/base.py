@@ -291,6 +291,7 @@ def ctx_loader(*args, **kwargs):
         thread.join()
 
 def colored(value, color = COLOR_RED):
+    if not util.is_color(): return value
     color = COLORS.get(color, color)
     return color + value + COLOR_RESET
 
