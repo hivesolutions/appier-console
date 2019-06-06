@@ -106,6 +106,7 @@ class LoaderThread(threading.Thread):
         color = None,
         template = "{{spinner}}",
         stream = sys.stdout,
+        single = False,
         end_newline = False,
         *args, **kwargs
     ):
@@ -115,6 +116,7 @@ class LoaderThread(threading.Thread):
         self.color = color
         self.template = template
         self.stream = stream
+        self.single = single
         self.end_newline = end_newline or not self.is_tty
         self._condition = threading.Condition()
 
@@ -174,10 +176,16 @@ class LoaderThread(threading.Thread):
         else: interval = self.interval_g
 
         initial = time.time()
+        next = initial
         is_first = True
         previous_size = 0
+        print_count = 0
 
         while True:
+            # in case the running flag is not longer set breaks
+            # the current loop (nothing remaining to be done)
+            if not self.running: break
+
             # determines the proper character that is going to be used as
             # a prefix for a proper line clearing operation, notice that
             # in case no color support exists the current line is populated
@@ -226,14 +234,13 @@ class LoaderThread(threading.Thread):
 
             # writes the current label (text) to the output stream
             # and runs the flush operation (required to ensure that
-            # the data contents are properly set in the stream)
-            if label:
+            # the data contents are properly set in the stream) notice
+            # that in case this is a single print on non interactive
+            # then only one print of the label occurs
+            if label and (self.has_spinner or not self.single or print_count == 0):
                 self.stream.write(bol + label + eol)
                 self.stream.flush()
-
-            # in case the running flag is not longer set breaks
-            # the current loop (nothing remaining to be done)
-            if not self.running: break
+                print_count += 1
 
             # waits for the condition for the associated amount of
             # time and then releases the condition, this will effectively
@@ -256,7 +263,10 @@ class LoaderThread(threading.Thread):
         self.stream.flush()
 
     def stop(self):
+        self._condition.acquire()
         self.running = False
+        self._condition.notify()
+        self._condition.release()
 
     def set_template(self, value):
         self.template = value
@@ -294,7 +304,8 @@ class LoaderThread(threading.Thread):
 def ctx_loader(*args, **kwargs):
     thread = LoaderThread(*args, **kwargs)
     thread.start()
-    try: yield thread
+    try:
+        yield thread
     finally:
         thread.stop()
         thread.join()
