@@ -175,6 +175,12 @@ class LoaderThread(threading.Thread):
         if self.has_spinner: interval = min(self.interval_g, interval_s)
         else: interval = self.interval_g
 
+        # in case the single print mode is enable and the current output
+        # is not a tty one (simple text loading) the no multiple loops
+        # should occur, effectively enforcing a single line print, then
+        # the value is set to a very high value
+        if self.single and not self.is_tty: interval = 86400
+
         initial = time.time()
         next = initial
         is_first = True
@@ -234,10 +240,8 @@ class LoaderThread(threading.Thread):
 
             # writes the current label (text) to the output stream
             # and runs the flush operation (required to ensure that
-            # the data contents are properly set in the stream) notice
-            # that in case this is a single print on non interactive
-            # then only one print of the label occurs
-            if label and (self.has_spinner or not self.single or print_count == 0):
+            # the data contents are properly set in the stream)
+            if label:
                 self.stream.write(bol + label + eol)
                 self.stream.flush()
                 print_count += 1
