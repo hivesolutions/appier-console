@@ -206,9 +206,12 @@ class LoaderThread(threading.Thread):
 
             if not self.has_spinner: replacer = ""
 
+            # converts the template into a string and replaces the
+            # reference to the spinner with the replacer and then
+            # runs the right strip function to avoid extra newlines 
             template = appier.legacy.str(self.template)
             label = template.replace("{{spinner}}", replacer)
-            label = label.strip()
+            label = label.rstrip()
 
             # saves the size of the current label (output text) so that
             # it can be used to calculate the size of the spaces string
