@@ -38,6 +38,7 @@ __license__ = "Apache License, Version 2.0"
 """ The license for the module """
 
 import os
+import re
 import sys
 import time
 import json
@@ -210,8 +211,7 @@ class LoaderThread(threading.Thread):
             # reference to the spinner with the replacer and then
             # runs the right strip function to avoid extra newlines 
             template = appier.legacy.str(self.template)
-            label = template.replace("{{spinner}}", replacer)
-            label = label.rstrip()
+            label = re.sub("\{\{spinner\}\}\s*", replacer, template)
 
             # saves the size of the current label (output text) so that
             # it can be used to calculate the size of the spaces string
