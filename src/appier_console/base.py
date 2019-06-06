@@ -205,13 +205,19 @@ class LoaderThread(threading.Thread):
             replacer = frames[value]
             if color: replacer = color + replacer + COLOR_RESET
 
-            if not self.has_spinner: replacer = ""
-
-            # converts the template into a string and replaces the
-            # reference to the spinner with the replacer and then
-            # runs the right strip function to avoid extra newlines 
+            # converts the template into a string so that it can be used
+            # safely in the replacement operations
             template = appier.legacy.str(self.template)
-            label = re.sub("\{\{spinner\}\}\s*", replacer, template)
+
+            # in case the spinner is active runs a simple string replacement
+            # strategy over the template
+            if self.has_spinner:
+                label = re.sub("\{\{spinner\}\}*", replacer, template)
+
+            # otherwise runs the replace but also removes the adjacent extra
+            # spaces to avoid unwanted bad looking
+            else:
+                label = re.sub("\{\{spinner\}\}\s*", "", template)
 
             # saves the size of the current label (output text) so that
             # it can be used to calculate the size of the spaces string
