@@ -107,7 +107,10 @@ class LoaderThread(threading.Thread):
         template = "{{spinner}}",
         stream = sys.stdout,
         single = False,
-        end_newline = False,
+        flush = True,
+        max_print = None,
+        end_newline = None,
+        eol = None,
         *args, **kwargs
     ):
         threading.Thread.__init__(self, *args, **kwargs)
@@ -117,7 +120,10 @@ class LoaderThread(threading.Thread):
         self.template = template
         self.stream = stream
         self.single = single
-        self.end_newline = end_newline or not self.is_tty
+        self.flush = flush
+        self.max_print = max_print
+        self.end_newline = not self.is_tty if end_newline == None else end_newline
+        self.eol = "\n" if self.is_tty else "" if eol == None else eol
         self._condition = threading.Condition()
 
     @classmethod
@@ -175,11 +181,15 @@ class LoaderThread(threading.Thread):
         if self.has_spinner: interval = min(self.interval_g, interval_s)
         else: interval = self.interval_g
 
+        # retrieves the instance level max print value to be used locally
+        # in the control of the print loop
+        max_print = self.max_print
+
         # in case the single print mode is enable and the current output
         # is not a tty one (simple text loading) the no multiple loops
         # should occur, effectively enforcing a single line print, then
-        # the value is set to a very high value
-        if self.single and not self.is_tty: interval = 86400
+        # the value of the max print is set to one
+        if self.single and not self.is_tty: max_print = max_print or 1
 
         initial = time.time()
         next = initial
@@ -191,6 +201,20 @@ class LoaderThread(threading.Thread):
             # in case the running flag is not longer set breaks
             # the current loop (nothing remaining to be done)
             if not self.running: break
+
+            # in case the maximum number of prints has been reached
+            # then the waiting (for condition) must be performed
+            if not max_print == None and print_count == max_print:
+                # waits for the condition for the associated amount of
+                # time and then releases the condition, this will effectively
+                # allow external threads to awake this one
+                self._condition.acquire()
+                self._condition.wait(interval)
+                self._condition.release()
+
+                # continues the loop immediately to be able to execute
+                # the next iteration
+                continue
 
             # determines the proper character that is going to be used as
             # a prefix for a proper line clearing operation, notice that
@@ -209,9 +233,9 @@ class LoaderThread(threading.Thread):
             # line (BOL) and end of line (EOL) characters
             if is_first:
                 is_first = False
-                bol, eol = ("", "") if self.is_tty else ("", "\n")
+                bol, eol = ("" if self.is_tty else "", self.eol)
             else:
-                bol, eol = (clear_line + "\r", "") if self.is_tty else ("", "\n")
+                bol, eol = (clear_line + "\r" if self.is_tty else "", self.eol)
 
             # retrieves the value of the current frame of the spinner
             # and in case there's a color selected updates such replacer
@@ -243,7 +267,7 @@ class LoaderThread(threading.Thread):
             # the data contents are properly set in the stream)
             if label:
                 self.stream.write(bol + label + eol)
-                self.stream.flush()
+                if self.flush: self.stream.flush()
                 print_count += 1
 
             # waits for the condition for the associated amount of
@@ -262,9 +286,9 @@ class LoaderThread(threading.Thread):
         # verifies if the current context should end with a new line
         # or if instead the same line is going to be re-used and write
         # the appropriate string sequence to the output stream
-        if self.end_newline: self.stream.write("\n" if self.is_tty else "")
+        if self.end_newline: self.stream.write(self.eol)
         else: self.stream.write(clear_line + "\r")
-        self.stream.flush()
+        if self.flush: self.stream.flush()
 
     def stop(self):
         self._condition.acquire()
