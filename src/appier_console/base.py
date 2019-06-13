@@ -123,7 +123,7 @@ class LoaderThread(threading.Thread):
         self.flush = flush
         self.max_print = max_print
         self.end_newline = not self.is_tty if end_newline == None else end_newline
-        self.eol = "\n" if self.is_tty else "" if eol == None else eol
+        self.eol = "" if self.is_tty else "\n" if eol == None else eol
         self._condition = threading.Condition()
 
     @classmethod
