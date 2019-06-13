@@ -42,7 +42,7 @@ import setuptools
 
 setuptools.setup(
     name = "appier_console",
-    version = "0.1.12",
+    version = "0.2.0",
     author = "Hive Solutions Lda.",
     author_email = "development@hive.pt",
     description = "Appier Console",
