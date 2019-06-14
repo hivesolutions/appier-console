@@ -107,7 +107,7 @@ class LoaderThread(threading.Thread):
         template = "{{spinner}}",
         stream = sys.stdout,
         single = False,
-        flush = True,
+        flush_s = True,
         max_print = None,
         end_newline = None,
         eol = None,
@@ -120,7 +120,7 @@ class LoaderThread(threading.Thread):
         self.template = template
         self.stream = stream
         self.single = single
-        self.flush = flush
+        self.flush_s = flush_s
         self.max_print = max_print
         self.end_newline = not self.is_tty if end_newline == None else end_newline
         self.eol = "" if self.is_tty else "\n" if eol == None else eol
@@ -197,6 +197,8 @@ class LoaderThread(threading.Thread):
         previous_size = 0
         print_count = 0
 
+        # iterates continuously to print the multiple label lines
+        # while there's progress in the background operation
         while True:
             # in case the running flag is not longer set breaks
             # the current loop (nothing remaining to be done)
@@ -267,7 +269,7 @@ class LoaderThread(threading.Thread):
             # the data contents are properly set in the stream)
             if label:
                 self.stream.write(bol + label + eol)
-                if self.flush: self.stream.flush()
+                if self.flush_s: self.stream.flush()
                 print_count += 1
 
             # waits for the condition for the associated amount of
@@ -288,7 +290,7 @@ class LoaderThread(threading.Thread):
         # the appropriate string sequence to the output stream
         if self.end_newline: self.stream.write(self.eol)
         else: self.stream.write(clear_line + "\r")
-        if self.flush: self.stream.flush()
+        if self.flush_s: self.stream.flush()
 
     def stop(self):
         self._condition.acquire()
