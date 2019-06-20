@@ -46,7 +46,7 @@ from . import base
 def ctx_http_callbacks(
     name,
     color = None,
-    end_newline = True
+    end_newline = None
 ):
 
     with base.ctx_loader(
