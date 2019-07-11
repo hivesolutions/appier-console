@@ -201,8 +201,10 @@ class LoaderThread(threading.Thread):
         # while there's progress in the background operation
         while True:
             # in case the running flag is not longer set breaks
-            # the current loop (nothing remaining to be done)
-            if not self.running: break
+            # the current loop (nothing remaining to be done), notice
+            # that at least one loop cycle is guaranteed to be loaded
+            # this avoids the "no output" on small and fast operations
+            if not is_first and not self.running: break
 
             # in case the maximum number of prints has been reached
             # then the waiting (for condition) must be performed
