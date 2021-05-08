@@ -348,6 +348,10 @@ def colored(value, color = COLOR_RED, force = False):
     return color + value + COLOR_RESET
 
 def table(pairs, header = True, footer = True, sort = True):
+    # in case no valid pairs (or dictionary) is provided, then
+    # an empty string is immediately returned
+    if not pairs: return appier.legacy.u("")
+
     buffer = []
 
     if isinstance(pairs, dict): pairs = appier.legacy.items(pairs)

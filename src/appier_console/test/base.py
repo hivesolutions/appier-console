@@ -88,3 +88,6 @@ class BaseTest(unittest.TestCase):
             ["Hello", "你好世界"]
         ])
         self.assertEqual(result, appier.legacy.u("--------------------------\n| Amazon    | Jeff Bezos |\n| Apple     | Steve Jobs |\n| Hello     | 你好世界       |\n| Microsoft | Bill Gates |\n| Tesla     | Elon Musk  |\n--------------------------"))
+
+        result = appier_console.table({})
+        self.assertEqual(result, appier.legacy.u(""))
