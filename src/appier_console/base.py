@@ -342,22 +342,24 @@ def ctx_loader(*args, **kwargs):
         thread.stop()
         thread.join()
 
-def colored(value, color = COLOR_RED):
-    if not util.is_color(): return value
+def colored(value, color = COLOR_RED, force = False):
+    if not force and not util.is_color(): return value
     color = COLORS.get(color, color)
     return color + value + COLOR_RESET
 
 def table(pairs, header = True, footer = True, sort = True):
+    buffer = []
     if isinstance(pairs, dict): pairs = appier.legacy.items(pairs)
     if sort: pairs.sort()
     max_key = max(len(key) for key, _value in pairs)
     max_value = max(len(str(value)) for _key, value in pairs)
-    if header: print("-" * (max_key + max_value + 7))
+    if header: buffer.append("-" * (max_key + max_value + 7))
     for key, value in pairs:
         key_s = key.ljust(max_key)
         value_s = value.ljust(max_value)
-        print("| %s | %s |" % (key_s, value_s))
-    if footer: print("-" * (max_key + max_value + 7))
+        buffer.append("| %s | %s |" % (key_s, value_s))
+    if footer: buffer.append("-" * (max_key + max_value + 7))
+    return "\n".join(buffer)
 
 if __name__ == "__main__":
     spinners = appier.conf("SPINNERS", None, cast = list)

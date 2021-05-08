@@ -37,22 +37,19 @@ __copyright__ = "Copyright (c) 2008-2020 Hive Solutions Lda."
 __license__ = "Apache License, Version 2.0"
 """ The license for the module """
 
+import unittest
+
 import appier_console
 
-print(
-    appier_console.table({
-        "Microsoft" : "Bill Gates",
-        "Apple" : "Steve Jobs",
-        "Tesla" : "Elon Musk",
-        "Amazon" : "Jeff Bezos"
-    })
-)
+class BaseTest(unittest.TestCase):
 
-print(
-    appier_console.table([
-        ["Microsoft", "Bill Gates"],
-        ["Apple", "Steve Jobs"],
-        ["Tesla", "Elon Musk"],
-        ["Amazon", "Jeff Bezos"]
-    ])
-)
+    def test_colored(self):
+        result = appier_console.colored("Hello World", force = True)
+        self.assertEqual(result, "\x1b[0;31mHello World\x1b[0m")
+
+        result = appier_console.colored(
+            "Hello World",
+            color = appier_console.COLOR_BLUE,
+            force = True
+        )
+        self.assertEqual(result, "\x1b[0;34mHello World\x1b[0m")
