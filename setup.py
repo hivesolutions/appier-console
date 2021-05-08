@@ -51,8 +51,10 @@ setuptools.setup(
     url = "http://appier_console.hive.pt",
     zip_safe = False,
     packages = [
-        "appier_console"
+        "appier_console",
+        "appier_console.test"
     ],
+    test_suite = "appier_console.test",
     package_dir = {
         "" : os.path.normpath("src")
     },
