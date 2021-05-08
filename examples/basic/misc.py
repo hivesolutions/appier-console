@@ -45,3 +45,10 @@ appier_console.table({
     "Tesla" : "Elon Musk",
     "Amazon" : "Jeff Bezos"
 })
+
+appier_console.table([
+    ["Microsoft", "Bill Gates"],
+    ["Apple", "Steve Jobs"],
+    ["Tesla", "Elon Musk"],
+    ["Amazon", "Jeff Bezos"]
+])
