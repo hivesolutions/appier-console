@@ -349,17 +349,38 @@ def colored(value, color = COLOR_RED, force = False):
 
 def table(pairs, header = True, footer = True, sort = True):
     buffer = []
+
     if isinstance(pairs, dict): pairs = appier.legacy.items(pairs)
     if sort: pairs.sort()
+
+    _pairs = []
+
+    # rebuilds the complete set of pairs to make sure that
+    # the information represented there is ready to be
+    # written to a buffer (all string based)
+    for pair in pairs:
+        key, value = pair
+        if not appier.legacy.is_string(key): key = str(key)
+        if not appier.legacy.is_string(value): value = str(value)
+        key = appier.legacy.u(key, force = True)
+        value = appier.legacy.u(value, force = True)
+        _pairs.append((key, value))
+
+    pairs = _pairs
+
     max_key = max(len(key) for key, _value in pairs)
-    max_value = max(len(str(value)) for _key, value in pairs)
-    if header: buffer.append("-" * (max_key + max_value + 7))
+    max_value = max(len(value) for _key, value in pairs)
+
+    if header: buffer.append(appier.legacy.u("-") * (max_key + max_value + 7))
+
     for key, value in pairs:
         key_s = key.ljust(max_key)
         value_s = value.ljust(max_value)
-        buffer.append("| %s | %s |" % (key_s, value_s))
-    if footer: buffer.append("-" * (max_key + max_value + 7))
-    return "\n".join(buffer)
+        buffer.append(appier.legacy.u("| %s | %s |") % (key_s, value_s))
+
+    if footer: buffer.append(appier.legacy.u("-") * (max_key + max_value + 7))
+
+    return appier.legacy.u("\n").join(buffer)
 
 if __name__ == "__main__":
     spinners = appier.conf("SPINNERS", None, cast = list)

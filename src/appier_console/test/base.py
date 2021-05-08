@@ -39,6 +39,8 @@ __license__ = "Apache License, Version 2.0"
 
 import unittest
 
+import appier
+
 import appier_console
 
 class BaseTest(unittest.TestCase):
@@ -59,7 +61,7 @@ class BaseTest(unittest.TestCase):
             color = appier_console.COLOR_BLUE,
             force = True
         )
-        self.assertEqual(result, "\x1b[0;34m\xe4\xbd\xa0\xe5\xa5\xbd\xe4\xb8\x96\xe7\x95\x8c\x1b[0m")
+        self.assertEqual(result, "\x1b[0;34m你好世界\x1b[0m")
 
     def test_table(self):
         result = appier_console.table({
@@ -68,7 +70,7 @@ class BaseTest(unittest.TestCase):
             "Tesla" : "Elon Musk",
             "Amazon" : "Jeff Bezos"
         })
-        self.assertEqual(result, "--------------------------\n| Amazon    | Jeff Bezos |\n| Apple     | Steve Jobs |\n| Microsoft | Bill Gates |\n| Tesla     | Elon Musk  |\n--------------------------")
+        self.assertEqual(result, appier.legacy.u("--------------------------\n| Amazon    | Jeff Bezos |\n| Apple     | Steve Jobs |\n| Microsoft | Bill Gates |\n| Tesla     | Elon Musk  |\n--------------------------"))
 
         result = appier_console.table([
             ["Microsoft", "Bill Gates"],
@@ -76,13 +78,13 @@ class BaseTest(unittest.TestCase):
             ["Tesla", "Elon Musk"],
             ["Amazon", "Jeff Bezos"]
         ])
-        self.assertEqual(result, "--------------------------\n| Amazon    | Jeff Bezos |\n| Apple     | Steve Jobs |\n| Microsoft | Bill Gates |\n| Tesla     | Elon Musk  |\n--------------------------")
+        self.assertEqual(result, appier.legacy.u("--------------------------\n| Amazon    | Jeff Bezos |\n| Apple     | Steve Jobs |\n| Microsoft | Bill Gates |\n| Tesla     | Elon Musk  |\n--------------------------"))
 
         result = appier_console.table([
             ["Microsoft", "Bill Gates"],
             ["Apple", "Steve Jobs"],
             ["Tesla", "Elon Musk"],
             ["Amazon", "Jeff Bezos"],
-            ["Helo", "你好世界"]
+            ["Hello", "你好世界"]
         ])
-        self.assertEqual(result, "----------------------------\n| Amazon    | Jeff Bezos   |\n| Apple     | Steve Jobs   |\n| Helo      | \xe4\xbd\xa0\xe5\xa5\xbd\xe4\xb8\x96\xe7\x95\x8c |\n| Microsoft | Bill Gates   |\n| Tesla     | Elon Musk    |\n----------------------------")
+        self.assertEqual(result, appier.legacy.u("--------------------------\n| Amazon    | Jeff Bezos |\n| Apple     | Steve Jobs |\n| Hello     | 你好世界       |\n| Microsoft | Bill Gates |\n| Tesla     | Elon Musk  |\n--------------------------"))
