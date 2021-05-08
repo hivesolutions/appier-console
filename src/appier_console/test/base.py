@@ -53,3 +53,36 @@ class BaseTest(unittest.TestCase):
             force = True
         )
         self.assertEqual(result, "\x1b[0;34mHello World\x1b[0m")
+
+        result = appier_console.colored(
+            "你好世界",
+            color = appier_console.COLOR_BLUE,
+            force = True
+        )
+        self.assertEqual(result, "\x1b[0;34m\xe4\xbd\xa0\xe5\xa5\xbd\xe4\xb8\x96\xe7\x95\x8c\x1b[0m")
+
+    def test_table(self):
+        result = appier_console.table({
+            "Microsoft" : "Bill Gates",
+            "Apple" : "Steve Jobs",
+            "Tesla" : "Elon Musk",
+            "Amazon" : "Jeff Bezos"
+        })
+        self.assertEqual(result, "--------------------------\n| Amazon    | Jeff Bezos |\n| Apple     | Steve Jobs |\n| Microsoft | Bill Gates |\n| Tesla     | Elon Musk  |\n--------------------------")
+
+        result = appier_console.table([
+            ["Microsoft", "Bill Gates"],
+            ["Apple", "Steve Jobs"],
+            ["Tesla", "Elon Musk"],
+            ["Amazon", "Jeff Bezos"]
+        ])
+        self.assertEqual(result, "--------------------------\n| Amazon    | Jeff Bezos |\n| Apple     | Steve Jobs |\n| Microsoft | Bill Gates |\n| Tesla     | Elon Musk  |\n--------------------------")
+
+        result = appier_console.table([
+            ["Microsoft", "Bill Gates"],
+            ["Apple", "Steve Jobs"],
+            ["Tesla", "Elon Musk"],
+            ["Amazon", "Jeff Bezos"],
+            ["Helo", "你好世界"]
+        ])
+        self.assertEqual(result, "----------------------------\n| Amazon    | Jeff Bezos   |\n| Apple     | Steve Jobs   |\n| Helo      | \xe4\xbd\xa0\xe5\xa5\xbd\xe4\xb8\x96\xe7\x95\x8c |\n| Microsoft | Bill Gates   |\n| Tesla     | Elon Musk    |\n----------------------------")
