@@ -19,6 +19,9 @@
 # You should have received a copy of the Apache License along with
 # Hive Appier Framework. If not, see <http://www.apache.org/licenses/>.
 
+__author__ = "João Magalhães <joamag@hive.pt>"
+""" The author(s) of the module """
+
 __version__ = "1.0.0"
 """ The version of the module """
 
@@ -34,13 +37,11 @@ __copyright__ = "Copyright (c) 2008-2020 Hive Solutions Lda."
 __license__ = "Apache License, Version 2.0"
 """ The license for the module """
 
-from . import base
-from . import http
-from . import util
+import appier_console
 
-from .base import COLOR_RESET, COLOR_WHITE, COLOR_BLACK, COLOR_BLUE, COLOR_LIGHT_BLUE, COLOR_GREEN,\
-    COLOR_LIGHT_GREEN, COLOR_CYAN, COLOR_LIGHT_CYAN, COLOR_RED, COLOR_LIGHT_RED, COLOR_PURPLE,\
-    COLOR_LIGHT_PURPLE, COLOR_BROWN, COLOR_YELLOW, COLOR_GRAY, COLOR_LIGHT_GRAY, CLEAR_LINE, COLORS,\
-    LoaderThread, ctx_loader, colored, table
-from .http import ctx_http_callbacks
-from .util import is_tty, is_ansi, is_color
+appier_console.table({
+    "Microsoft" : "Bill Gates",
+    "Apple" : "Steve Jobs",
+    "Tesla" : "Elon Musk",
+    "Amazon" : "Jeff Bezos"
+})
