@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <projectDescription>
-	<name>appier_console</name>
+	<name>appier-console</name>
 	<comment></comment>
 	<projects>
 		<project>appier</project>

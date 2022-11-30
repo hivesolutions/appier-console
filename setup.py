@@ -41,14 +41,14 @@ import os
 import setuptools
 
 setuptools.setup(
-    name = "appier_console",
+    name = "appier-console",
     version = "0.3.1",
     author = "Hive Solutions Lda.",
     author_email = "development@hive.pt",
     description = "Appier Console",
     license = "Apache License, Version 2.0",
     keywords = "appier console terminal util",
-    url = "http://appier_console.hive.pt",
+    url = "http://appier-console.hive.pt",
     zip_safe = False,
     packages = [
         "appier_console",
